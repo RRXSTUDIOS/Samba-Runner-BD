@@ -4,9 +4,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Samba Runner BD - RRX STUDIOS</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Hind+Siliguri:wght@600;700&display=swap');
+
         * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Hind Siliguri', 'Segoe UI', sans-serif;
             background: #0a0a0a;
             display: flex;
             justify-content: center;
@@ -42,21 +44,36 @@
             padding: 20px;
         }
 
-        .studio-tag {
-            font-size: 14px;
-            letter-spacing: 3px;
+        /* Premium Font Title for RRX STUDIOS PRESENTS */
+        .premium-tag {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 4px;
             color: #00e676;
             text-transform: uppercase;
-            font-weight: bold;
-            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(0, 230, 118, 0.5);
+            margin-bottom: 8px;
         }
 
-        h1 { font-size: 38px; color: #fed100; text-shadow: 3px 3px #009c3b; margin-bottom: 5px; }
-        .edition-tag { font-size: 18px; color: #00b0ff; font-weight: bold; margin-bottom: 15px; }
-        .sub-desc { font-size: 20px; margin-bottom: 25px; color: #ffeb3b; font-weight: 600; }
+        h1 { 
+            font-size: 42px; 
+            color: #fed100; 
+            text-shadow: 3px 3px #009c3b; 
+            margin-bottom: 12px; 
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+        }
+        
+        .sub-desc { 
+            font-size: 22px; 
+            margin-bottom: 25px; 
+            color: #ffeb3b; 
+            font-weight: 700; 
+        }
 
         .btn {
-            padding: 12px 35px;
+            padding: 12px 38px;
             font-size: 20px;
             font-weight: bold;
             color: #fff;
@@ -92,7 +109,6 @@
         .hud-btn { padding: 6px 16px; font-size: 14px; }
         .hidden { display: none !important; }
         
-        /* Youtube Hidden Player */
         #audio-container { position: absolute; top: -9999px; left: -9999px; }
     </style>
 </head>
@@ -114,9 +130,8 @@
 
     <!-- Start Menu Screen -->
     <div id="startScreen" class="overlay">
-        <div class="studio-tag">RRX STUDIOS presents</div>
+        <div class="premium-tag">RRX STUDIOS PRESENTS</div>
         <h1>Samba Runner BD ⚽</h1>
-        <div class="edition-tag">🇧🇷 Brazil World Cup Edition 🇧🇷</div>
         <div class="sub-desc">7up খেও হেক্সা মিশন জিতো!</div>
         <button id="startBtn" class="btn">START GAME</button>
     </div>
@@ -137,7 +152,7 @@
     </div>
 </div>
 
-<!-- Background Youtube Funny Music Container -->
+<!-- Background Youtube Song Player -->
 <div id="audio-container">
     <iframe id="yt-player" width="100" height="100" 
         src="https://www.youtube.com/embed/QtD4Wza458M?enablejsapi=1&loop=1&playlist=QtD4Wza458M" 
@@ -163,7 +178,7 @@
     const finalScore = document.getElementById('finalScore');
     const finalCoins = document.getElementById('finalCoins');
 
-    // YouTube Audio API Controls
+    // YouTube Audio Controls
     let playerIframe = document.getElementById('yt-player');
     function playBgMusic() {
         playerIframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
@@ -172,7 +187,7 @@
         playerIframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
     }
 
-    // Custom Web Audio Click
+    // Custom Web Audio Click Sound
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playClickSound() {
         if(audioCtx.state === 'suspended') audioCtx.resume();
@@ -208,8 +223,8 @@
         dy: 0,
         isJumping: false,
         draw() {
-            // Legs running animation
-            ctx.fillStyle = '#002776'; // Blue Shorts
+            // Legs animation
+            ctx.fillStyle = '#002776';
             let legOffset = Math.sin(frameCount * 0.3) * 6;
             ctx.fillRect(this.x + 6 + (this.isJumping ? 0 : legOffset), this.y + 36, 10, 19);
             ctx.fillRect(this.x + 22 - (this.isJumping ? 0 : legOffset), this.y + 36, 10, 19);
@@ -220,7 +235,7 @@
             
             // Jersey Number 10
             ctx.fillStyle = '#002776';
-            ctx.font = 'bold 12px Arial';
+            ctx.font = 'bold 12px Montserrat, sans-serif';
             ctx.fillText('10', this.x + 12, this.y + 31);
 
             // Green Collar
@@ -271,7 +286,6 @@
         }
         draw() {
             if (this.type === '7UP') {
-                // 7Up Can
                 ctx.fillStyle = '#00a651';
                 ctx.fillRect(this.x, this.y, this.width, this.height);
                 ctx.fillStyle = '#e0e0e0';
@@ -284,7 +298,6 @@
                 ctx.arc(this.x + 23, this.y + 36, 4, 0, Math.PI * 2);
                 ctx.fill();
             } else {
-                // Metal Spikes
                 ctx.fillStyle = '#7f8c8d';
                 ctx.beginPath();
                 ctx.moveTo(this.x, groundY);
@@ -300,13 +313,13 @@
         }
     }
 
-    // Coins (Adjusted Height to easily catch!)
+    // Coins (Lower Height for Easy Catching)
     let coins = [];
     class Coin {
         constructor() {
             this.x = canvas.width + 40;
-            // Lowered height range for easier collection
-            this.y = groundY - 60 - Math.random() * 45; 
+            // Adjusted height so jump can reach easily
+            this.y = groundY - 50 - Math.random() * 35; 
             this.radius = 12;
         }
         draw() {
@@ -346,11 +359,10 @@
             ctx.fillRect(i, 200, 45, 90);
         }
 
-        // Green Grass Field
+        // Green Field
         ctx.fillStyle = '#2e7d32';
         ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
 
-        // Moving Grass Striping
         ctx.strokeStyle = '#388e3c';
         ctx.lineWidth = 16;
         for (let i = (frameCount * -gameSpeed) % 60; i < canvas.width; i += 60) {
@@ -360,7 +372,6 @@
             ctx.stroke();
         }
 
-        // Top White Touchline
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 4;
         ctx.beginPath();
@@ -432,14 +443,13 @@
         requestAnimationFrame(animate);
     }
 
-    // Controls
+    // Touch, Mouse & Keyboard Controls
     function handleJumpInput() {
         if (gameState === 'PLAYING') {
             player.jump();
         }
     }
 
-    // Touch & Mouse Support
     canvas.addEventListener('touchstart', (e) => {
         e.preventDefault();
         handleJumpInput();
