@@ -61,7 +61,6 @@
             letter-spacing: 2px;
         }
 
-        /* Subtitle Style */
         .sub-title {
             font-size: 18px;
             color: #ffffff;
@@ -72,7 +71,6 @@
             text-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
         }
 
-        /* Updated Instructions Style */
         p.instructions {
             font-size: 22px;
             font-weight: 800;
@@ -87,7 +85,6 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
-        /* Animated Buttons */
         .btn {
             padding: 14px 38px;
             font-size: 18px;
@@ -117,7 +114,6 @@
             transform: translateY(2px) scale(0.96);
         }
 
-        /* Top HUD */
         #hud {
             position: absolute;
             top: 15px; left: 20px; right: 20px;
@@ -160,8 +156,8 @@
 <body>
 
 <div id="game-wrapper">
-    <!-- Hidden Container for YouTube Background Audio -->
-    <div id="yt-player" style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;"></div>
+    <!-- Local Offline Audio Element -->
+    <audio id="bgMusic" src="7upbg.mp3" loop preload="auto"></audio>
 
     <!-- Heads Up Display (HUD) -->
     <div id="hud">
@@ -210,9 +206,6 @@
     </div>
 </div>
 
-<!-- YouTube IFrame API Script -->
-<script src="https://www.youtube.com/iframe_api"></script>
-
 <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -234,6 +227,9 @@
     const highScoreText = document.getElementById('highScoreText');
     const finalScore = document.getElementById('finalScore');
     const finalCoins = document.getElementById('finalCoins');
+
+    // Audio Element
+    const bgMusic = document.getElementById('bgMusic');
 
     // High score from localStorage
     let highScore = localStorage.getItem('samba_runner_highscore') || 0;
@@ -278,48 +274,23 @@
         }
     }
 
-    // YouTube Background Music Player (Looping Setup)
-    let playerYT;
-    function onYouTubeIframeAPIReady() {
-        playerYT = new YT.Player('yt-player', {
-            height: '0',
-            width: '0',
-            videoId: 'QtD4Wza458M',
-            playerVars: {
-                'autoplay': 0,
-                'controls': 0,
-                'loop': 1,
-                'playlist': 'QtD4Wza458M'
-            },
-            events: {
-                'onStateChange': onPlayerStateChange
-            }
-        });
-    }
-
-    function onPlayerStateChange(event) {
-        // Force repeat playing if video ends
-        if (event.data === YT.PlayerState.ENDED) {
-            playerYT.playVideo();
-        }
-    }
-
+    // Offline Background Music Handlers
     function playBGM() {
-        if (playerYT && typeof playerYT.playVideo === 'function') {
-            playerYT.playVideo();
+        if (bgMusic) {
+            bgMusic.play().catch(e => console.log("Audio play blocked by browser:", e));
         }
     }
 
     function pauseBGM() {
-        if (playerYT && typeof playerYT.pauseVideo === 'function') {
-            playerYT.pauseVideo();
+        if (bgMusic) {
+            bgMusic.pause();
         }
     }
 
     function stopBGM() {
-        if (playerYT && typeof playerYT.stopVideo === 'function') {
-            playerYT.pauseVideo();
-            playerYT.seekTo(0);
+        if (bgMusic) {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
         }
     }
 
@@ -739,7 +710,7 @@
         requestAnimationFrame(animate);
     }
 
-    // Game States & Music Handlers
+    // Game States Handlers
     function startGame() {
         resetData();
         gameState = 'PLAYING';
