@@ -72,7 +72,7 @@
             text-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
         }
 
-        /* Updated Instructions Style (Bangla) */
+        /* Updated Instructions Style */
         p.instructions {
             font-size: 22px;
             font-weight: 800;
@@ -184,7 +184,7 @@
             <h1 class="game-title">Samba Runner BD ⚽</h1>
             <div class="sub-title">RRX STUDIOS PRESENTS</div>
         </div>
-        <p class="instructions">৭আপ খাও, হেক্সা মিশন জিতো!</p>
+        <p class="instructions">7আপ খাও, হেক্সা মিশন জিতো!</p>
         <button id="startBtn" class="btn">START GAME ▶</button>
     </div>
 
@@ -632,7 +632,7 @@
 
         ctx.fillStyle = '#00ff87';
         ctx.font = 'bold 13px sans-serif';
-        let adText = "  ⚽ SAMBA RUNNER BD  |  RRX STUDIOS PRESENTS  |  ৭আপ খাও হেক্সা মিশন জিতো  |  GOLDEN BOOT RUN  ";
+        let adText = "  ⚽ SAMBA RUNNER BD  |  RRX STUDIOS PRESENTS  |  7আপ খাও হেক্সা মিশন জিতো  |  GOLDEN BOOT RUN  ";
         let textWidth = ctx.measureText(adText).width;
         let xPos = -(adOffset % textWidth);
         ctx.fillText(adText + adText, xPos, 290);
