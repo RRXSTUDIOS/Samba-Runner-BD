@@ -14,6 +14,7 @@
             height: 100vh;
             overflow: hidden;
             color: #fff;
+            user-select: none;
         }
 
         #game-wrapper {
@@ -25,6 +26,7 @@
             overflow: hidden;
             border: 4px solid #fed100;
             background: #000;
+            cursor: pointer;
         }
 
         canvas { display: block; width: 100%; height: 100%; }
@@ -59,21 +61,30 @@
             letter-spacing: 2px;
         }
 
+        /* Updated Subtitle Style */
         .sub-title {
-            font-size: 16px;
-            color: #00ff87;
-            margin-top: 5px;
-            font-weight: 600;
+            font-size: 18px;
+            color: #ffffff;
+            margin-top: 6px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
         }
 
+        /* Updated Instructions Style */
         p.instructions {
-            font-size: 16px;
+            font-size: 20px;
+            font-weight: 800;
             margin-bottom: 25px;
-            color: #e0e0e0;
-            background: rgba(255,255,255,0.08);
-            padding: 10px 20px;
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 12px 28px;
             border-radius: 30px;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 2px solid rgba(254, 209, 0, 0.6);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
         /* Animated Buttons */
@@ -168,9 +179,9 @@
     <div id="startScreen" class="overlay">
         <div class="title-container">
             <h1 class="game-title">Samba Runner BD ⚽</h1>
-            <div class="sub-title">🇧🇷 Brazil World Cup Edition 🇧🇷</div>
+            <div class="sub-title">RRX STUDIOS PRESENTS</div>
         </div>
-        <p class="instructions">Spacebar / Up Arrow চেপে লাফ দাও! 7Up ক্যান ও কাঁটা এড়িয়ে গোল্ডেন কয়েন তোলো!</p>
+        <p class="instructions">7up khao hexa mission jito</p>
         <button id="startBtn" class="btn">START GAME ▶</button>
     </div>
 
@@ -199,6 +210,7 @@
 <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+    const gameWrapper = document.getElementById('game-wrapper');
 
     // UI Elements
     const startScreen = document.getElementById('startScreen');
@@ -260,7 +272,7 @@
         }
     }
 
-    // Speech Voice Loop
+    // Speech Voice Loop (Runs strictly during game play)
     let bgVoiceInterval;
     function startVoiceLoop() {
         if (bgVoiceInterval) clearInterval(bgVoiceInterval);
@@ -481,12 +493,13 @@
         }
     }
 
-    // 3D Animated Golden Coins
+    // 3D Animated Golden Coins (Position Brought Lower)
     let coins = [];
     class Coin {
         constructor() {
             this.x = canvas.width + 30;
-            this.y = groundY - 75 - Math.random() * 85;
+            // Lowered height for easier collection
+            this.y = groundY - 45 - Math.random() * 55;
             this.radius = 13;
             this.spinVal = Math.random() * Math.PI;
         }
@@ -614,7 +627,7 @@
 
         ctx.fillStyle = '#00ff87';
         ctx.font = 'bold 13px sans-serif';
-        let adText = "  ⚽ SAMBA RUNNER BD  |  🇧🇷 BRAZIL WORLD CUP 2026  |  7UP DODGE CHALLENGE  |  GOLDEN BOOT RUN  ";
+        let adText = "  ⚽ SAMBA RUNNER BD  |  RRX STUDIOS PRESENTS  |  7UP KHAO HEXA MISSION JITO  |  GOLDEN BOOT RUN  ";
         let textWidth = ctx.measureText(adText).width;
         let xPos = -(adOffset % textWidth);
         ctx.fillText(adText + adText, xPos, 290);
@@ -782,17 +795,40 @@
         coinText.innerText = 0;
     }
 
-    // Input Handlers
+    // Universal Jump Trigger (For Keyboard, Touch & Mouse)
+    function handleJump(e) {
+        if (gameState === 'PLAYING') {
+            // Check if click/tap was on the pause button
+            if (e.target && e.target.id === 'pauseBtn') return;
+            player.jump();
+        }
+    }
+
+    // Keyboard Input Handlers
     window.addEventListener('keydown', (e) => {
         if (e.code === 'Space' || e.code === 'ArrowUp') {
             e.preventDefault();
-            if (gameState === 'PLAYING') player.jump();
+            handleJump(e);
         }
     });
 
-    canvas.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        if (gameState === 'PLAYING') player.jump();
+    // Touch Support for Mobile
+    gameWrapper.addEventListener('touchstart', (e) => {
+        if (gameState === 'PLAYING') {
+            if (e.target.tagName !== 'BUTTON') {
+                e.preventDefault();
+                handleJump(e);
+            }
+        }
+    });
+
+    // Mouse Click Support for PC
+    gameWrapper.addEventListener('mousedown', (e) => {
+        if (e.button === 0 && gameState === 'PLAYING') { // Left Click
+            if (e.target.tagName !== 'BUTTON') {
+                handleJump(e);
+            }
+        }
     });
 
     startBtn.addEventListener('click', startGame);
