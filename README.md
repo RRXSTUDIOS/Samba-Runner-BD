@@ -2,73 +2,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brazil Runner Game - Test</title>
+    <title>Samba Runner BD ⚽</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #111;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            background: #0a0f1d;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             overflow: hidden;
+            color: #fff;
         }
 
-        #game-container {
+        #game-wrapper {
             position: relative;
-            width: 800px;
-            height: 400px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            border-radius: 12px;
+            width: 900px;
+            height: 450px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(254, 209, 0, 0.3);
+            border-radius: 16px;
             overflow: hidden;
             border: 4px solid #fed100;
+            background: #000;
         }
 
-        canvas { display: block; }
+        canvas { display: block; width: 100%; height: 100%; }
 
-        /* UI Overlays */
+        /* UI Screens */
         .overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.75);
+            background: rgba(10, 15, 29, 0.88);
+            backdrop-filter: blur(8px);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: #fff;
             z-index: 10;
+            text-align: center;
+            padding: 20px;
         }
 
-        h1 { font-size: 42px; color: #fed100; text-shadow: 2px 2px #009c3b; margin-bottom: 10px; }
-        p { font-size: 18px; margin-bottom: 20px; color: #ddd; }
+        .title-container {
+            margin-bottom: 20px;
+            animation: bounce 2s infinite ease-in-out;
+        }
 
-        /* Fancy Animated Buttons */
+        h1.game-title {
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(45deg, #fed100, #009c3b, #002776);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            letter-spacing: 2px;
+        }
+
+        .sub-title {
+            font-size: 16px;
+            color: #00ff87;
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        p.instructions {
+            font-size: 16px;
+            margin-bottom: 25px;
+            color: #e0e0e0;
+            background: rgba(255,255,255,0.08);
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Animated Buttons */
         .btn {
-            padding: 12px 30px;
-            font-size: 20px;
-            font-weight: bold;
+            padding: 14px 38px;
+            font-size: 18px;
+            font-weight: 800;
             color: #fff;
-            background: linear-gradient(45deg, #009c3b, #002776);
+            background: linear-gradient(135deg, #009c3b 0%, #006837 100%);
             border: 2px solid #fed100;
-            border-radius: 25px;
+            border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-            transition: all 0.2s ease-in-out;
+            box-shadow: 0 8px 25px rgba(0, 156, 59, 0.5);
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             outline: none;
-            margin: 5px;
+            margin: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 8px 20px rgba(254, 209, 0, 0.6);
-            background: linear-gradient(45deg, #002776, #009c3b);
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 12px 30px rgba(254, 209, 0, 0.8);
+            background: linear-gradient(135deg, #fed100 0%, #ff8c00 100%);
+            color: #000;
+            border-color: #009c3b;
         }
 
         .btn:active {
-            transform: translateY(2px) scale(0.98);
+            transform: translateY(2px) scale(0.96);
         }
 
+        /* Top HUD */
         #hud {
             position: absolute;
             top: 15px; left: 20px; right: 20px;
@@ -76,57 +114,85 @@
             justify-content: space-between;
             align-items: center;
             z-index: 5;
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 18px;
+            font-weight: 700;
             color: #fff;
-            text-shadow: 2px 2px 4px #000;
+            pointer-events: none;
+        }
+
+        .hud-badge {
+            background: rgba(0, 0, 0, 0.65);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(254, 209, 0, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(4px);
         }
 
         .hud-btn {
-            padding: 6px 15px;
+            pointer-events: auto;
+            padding: 8px 20px;
             font-size: 14px;
+            border-radius: 20px;
         }
 
         .hidden { display: none !important; }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
     </style>
 </head>
 <body>
 
-<div id="game-container">
-    <!-- Top HUD (Score, Coins & Pause) -->
+<div id="game-wrapper">
+    <!-- Heads Up Display (HUD) -->
     <div id="hud">
-        <div>
-            ⚽ Score: <span id="scoreText">0</span> | 
-            🪙 Coins: <span id="coinText">0</span>
+        <div style="display: flex; gap: 12px;">
+            <div class="hud-badge">⚽ Score: <span id="scoreText" style="color: #fed100;">0</span></div>
+            <div class="hud-badge">🪙 Coins: <span id="coinText" style="color: #ffd700;">0</span></div>
+            <div class="hud-badge">🏆 High: <span id="highScoreText" style="color: #00ff87;">0</span></div>
         </div>
         <div>
-            <button id="pauseBtn" class="btn hud-btn">Pause</button>
+            <button id="pauseBtn" class="btn hud-btn">Pause ⏸️</button>
         </div>
     </div>
 
-    <!-- Canvas Area -->
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <!-- Canvas -->
+    <canvas id="gameCanvas" width="900" height="450"></canvas>
 
-    <!-- Start Menu Screen -->
+    <!-- Start Screen -->
     <div id="startScreen" class="overlay">
-        <h1>🇧🇷 BRAZIL DINO RUNNER ⚽</h1>
-        <p>Space / Up Arrow চেপে লাফ দাও! 7Up এড়িয়ে কয়েন তোলো!</p>
-        <button id="startBtn" class="btn">START GAME</button>
+        <div class="title-container">
+            <h1 class="game-title">Samba Runner BD ⚽</h1>
+            <div class="sub-title">🇧🇷 Brazil World Cup Edition 🇧🇷</div>
+        </div>
+        <p class="instructions">Spacebar / Up Arrow চেপে লাফ দাও! 7Up ক্যান ও কাঁটা এড়িয়ে গোল্ডেন কয়েন তোলো!</p>
+        <button id="startBtn" class="btn">START GAME ▶</button>
     </div>
 
     <!-- Pause Screen -->
     <div id="pauseScreen" class="overlay hidden">
-        <h1>GAME PAUSED</h1>
-        <button id="resumeBtn" class="btn">RESUME</button>
-        <button id="menuBtn1" class="btn">MAIN MENU</button>
+        <h1 class="game-title" style="font-size: 36px;">GAME PAUSED ⏸️</h1>
+        <br>
+        <button id="resumeBtn" class="btn">RESUME ▶</button>
+        <button id="menuBtn1" class="btn">MAIN MENU 🏠</button>
     </div>
 
     <!-- Game Over Screen -->
     <div id="gameOverScreen" class="overlay hidden">
-        <h1 style="color: #ff4757;">ELIMINATED! 😭</h1>
-        <p>Final Score: <span id="finalScore">0</span> | Coins: <span id="finalCoins">0</span></p>
-        <button id="restartBtn" class="btn">PLAY AGAIN</button>
-        <button id="menuBtn2" class="btn">MAIN MENU</button>
+        <h1 style="color: #ff4757; font-size: 42px; text-shadow: 0 5px 15px rgba(255,71,87,0.4);">ELIMINATED! 💥</h1>
+        <p style="font-size: 20px; margin: 15px 0;">
+            Final Score: <span id="finalScore" style="color: #fed100; font-weight: bold;">0</span> | 
+            Coins: <span id="finalCoins" style="color: #ffd700; font-weight: bold;">0</span>
+        </p>
+        <div>
+            <button id="restartBtn" class="btn">PLAY AGAIN 🔄</button>
+            <button id="menuBtn2" class="btn">MAIN MENU 🏠</button>
+        </div>
     </div>
 </div>
 
@@ -144,101 +210,190 @@
     const restartBtn = document.getElementById('restartBtn');
     const menuBtn1 = document.getElementById('menuBtn1');
     const menuBtn2 = document.getElementById('menuBtn2');
+    
     const scoreText = document.getElementById('scoreText');
     const coinText = document.getElementById('coinText');
+    const highScoreText = document.getElementById('highScoreText');
     const finalScore = document.getElementById('finalScore');
     const finalCoins = document.getElementById('finalCoins');
 
-    // Web Audio API for Custom Generated Sounds (No External Audio Files Needed!)
+    // High score from localStorage
+    let highScore = localStorage.getItem('samba_runner_highscore') || 0;
+    highScoreText.innerText = highScore;
+
+    // Web Audio Synthesizer for Clean Sound Effects
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    function playClickSound() {
-        if(audioCtx.state === 'suspended') audioCtx.resume();
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.1);
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'jump') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(180, now);
+            osc.frequency.exponentialRampToValueAtTime(520, now + 0.15);
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+            osc.start(now);
+            osc.stop(now + 0.15);
+        } else if (type === 'coin') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.setValueAtTime(900, now + 0.08);
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+            osc.start(now);
+            osc.stop(now + 0.2);
+        } else if (type === 'hit') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.exponentialRampToValueAtTime(40, now + 0.3);
+            gain.gain.setValueAtTime(0.4, now);
+            gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+            osc.start(now);
+            osc.stop(now + 0.3);
+        }
     }
 
-    // Bangla Voice Generator Simulation for "Oi Dor Dor Chor" BG Audio Loop
-    let bgSoundInterval;
-    function startBgVoice() {
-        if(bgSoundInterval) clearInterval(bgSoundInterval);
-        bgSoundInterval = setInterval(() => {
-            if (gameState === 'PLAYING') {
+    // Speech Voice Loop
+    let bgVoiceInterval;
+    function startVoiceLoop() {
+        if (bgVoiceInterval) clearInterval(bgVoiceInterval);
+        bgVoiceInterval = setInterval(() => {
+            if (gameState === 'PLAYING' && 'speechSynthesis' in window) {
                 const msg = new SpeechSynthesisUtterance("ঐ দৌড় দৌড় চোর");
                 msg.lang = 'bn-BD';
-                msg.pitch = 1.2;
+                msg.pitch = 1.1;
                 msg.rate = 1.3;
                 window.speechSynthesis.speak(msg);
             }
-        }, 2200);
+        }, 2400);
     }
 
-    function stopBgVoice() {
-        if(bgSoundInterval) clearInterval(bgSoundInterval);
-        window.speechSynthesis.cancel();
+    function stopVoiceLoop() {
+        if (bgVoiceInterval) clearInterval(bgVoiceInterval);
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     }
 
     // Game Variables
-    let gameState = 'START'; // START, PLAYING, PAUSED, GAMEOVER
+    let gameState = 'START';
     let score = 0;
     let coinsCollected = 0;
-    let gameSpeed = 6;
+    let gameSpeed = 7;
     let frameCount = 0;
 
-    // Ground & Gravity settings
-    const groundY = 320;
-    const gravity = 0.6;
+    const groundY = 360;
+    const gravity = 0.65;
 
-    // Player Object (Brazil Jersey Theme)
+    // Player Object (Animated Brazil Player)
     const player = {
-        x: 80,
-        y: groundY - 50,
-        width: 35,
-        height: 55,
+        x: 90,
+        y: groundY - 60,
+        width: 38,
+        height: 60,
         dy: 0,
         isJumping: false,
+        legAngle: 0,
+        
         draw() {
-            // Legs (Running animation effect)
-            ctx.fillStyle = '#002776'; // Blue Shorts
-            ctx.fillRect(this.x + 5, this.y + 35, 10, 20);
-            ctx.fillRect(this.x + 20, this.y + 35, 10, 20);
+            ctx.save();
+            ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
 
-            // Brazil Jersey Body (Yellow)
+            // Calculate leg/arm movement swing angle
+            if (!this.isJumping) {
+                this.legAngle = Math.sin(frameCount * 0.25) * 0.6;
+            } else {
+                this.legAngle = 0.4; // Jump pose
+            }
+
+            // Back Arm
+            ctx.strokeStyle = '#e0ac69';
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.moveTo(0, -10);
+            ctx.lineTo(-Math.sin(this.legAngle) * 18, 5);
+            ctx.stroke();
+
+            // Back Leg
+            ctx.strokeStyle = '#002776'; // Blue shorts leg
+            ctx.lineWidth = 7;
+            ctx.beginPath();
+            ctx.moveTo(-4, 8);
+            ctx.lineTo(-Math.sin(this.legAngle) * 20, 26);
+            ctx.stroke();
+
+            // Cleat/Shoe Back
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(-Math.sin(this.legAngle) * 20 - 3, 23, 10, 5);
+
+            // Front Leg
+            ctx.strokeStyle = '#002776';
+            ctx.beginPath();
+            ctx.moveTo(4, 8);
+            ctx.lineTo(Math.sin(this.legAngle) * 20, 26);
+            ctx.stroke();
+
+            // Cleat/Shoe Front
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(Math.sin(this.legAngle) * 20 - 3, 23, 10, 5);
+
+            // Body Jersey (Brazil Yellow)
             ctx.fillStyle = '#fed100';
-            ctx.fillRect(this.x, this.y + 15, this.width, 25);
-            
-            // Green Collar & Details
+            ctx.beginPath();
+            ctx.roundRect(-14, -18, 28, 28, 4);
+            ctx.fill();
+
+            // Jersey Green Collar & Details
             ctx.fillStyle = '#009c3b';
-            ctx.fillRect(this.x, this.y + 15, this.width, 4);
+            ctx.fillRect(-14, -18, 28, 5);
+            ctx.fillRect(-2, -13, 4, 18);
 
-            // Head & Face
-            ctx.fillStyle = '#ffdbac';
+            // Jersey Number 10
+            ctx.fillStyle = '#002776';
+            ctx.font = 'bold 11px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('10', 0, -2);
+
+            // Front Arm
+            ctx.strokeStyle = '#e0ac69';
+            ctx.lineWidth = 6;
             ctx.beginPath();
-            ctx.arc(this.x + this.width / 2, this.y + 10, 10, 0, Math.PI * 2);
+            ctx.moveTo(0, -10);
+            ctx.lineTo(Math.sin(this.legAngle) * 18, 5);
+            ctx.stroke();
+
+            // Head
+            ctx.fillStyle = '#e0ac69';
+            ctx.beginPath();
+            ctx.arc(0, -28, 11, 0, Math.PI * 2);
             ctx.fill();
 
-            // Hair
-            ctx.fillStyle = '#333';
+            // Hair (Stylish dark hair)
+            ctx.fillStyle = '#222';
             ctx.beginPath();
-            ctx.arc(this.x + this.width / 2, this.y + 7, 10, Math.PI, Math.PI * 2);
+            ctx.arc(0, -31, 11, Math.PI * 0.8, Math.PI * 2.2);
             ctx.fill();
+
+            // Headband / Sweatband (Green)
+            ctx.fillStyle = '#009c3b';
+            ctx.fillRect(-11, -33, 22, 4);
+
+            ctx.restore();
         },
+        
         jump() {
             if (!this.isJumping) {
-                this.dy = -13;
+                this.dy = -14.5;
                 this.isJumping = true;
-                playClickSound();
+                playSound('jump');
             }
         },
+
         update() {
             this.dy += gravity;
             this.y += this.dy;
@@ -252,118 +407,240 @@
         }
     };
 
-    // Obstacles (7Up Cans)
+    // Obstacles (7Up Cans & Sharp Spikes/Kata)
     let obstacles = [];
     class Obstacle {
         constructor() {
-            this.x = canvas.width + 50;
-            this.width = 30;
-            this.height = 50;
+            this.type = Math.random() > 0.4 ? '7UP' : 'SPIKE';
+            this.x = canvas.width + 40;
+            
+            if (this.type === '7UP') {
+                this.width = 32;
+                this.height = 54;
+            } else {
+                this.width = 36;
+                this.height = 38;
+            }
             this.y = groundY - this.height;
         }
+
         draw() {
-            // 7Up Can Green Body
-            ctx.fillStyle = '#00a651';
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            if (this.type === '7UP') {
+                // 7Up Can Body
+                let gradient = ctx.createLinearGradient(this.x, 0, this.x + this.width, 0);
+                gradient.addColorStop(0, '#00833e');
+                gradient.addColorStop(0.5, '#00a651');
+                gradient.addColorStop(1, '#005826');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.roundRect(this.x, this.y, this.width, this.height, 4);
+                ctx.fill();
 
-            // Can Top Silver Lid
-            ctx.fillStyle = '#ccc';
-            ctx.fillRect(this.x, this.y, this.width, 5);
+                // Metallic Silver Lid
+                ctx.fillStyle = '#e6e6e6';
+                ctx.fillRect(this.x + 2, this.y, this.width - 4, 4);
+                ctx.fillRect(this.x + 2, this.y + this.height - 4, this.width - 4, 4);
 
-            // 7Up Text Texture
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 12px Arial';
-            ctx.fillText('7Up', this.x + 3, this.y + 25);
+                // 7Up Logo text
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 13px sans-serif';
+                ctx.fillText('7Up', this.x + 4, this.y + 28);
 
-            // Red Dot
-            ctx.fillStyle = '#ed1c24';
-            ctx.beginPath();
-            ctx.arc(this.x + 22, this.y + 35, 4, 0, Math.PI * 2);
-            ctx.fill();
+                // Red Circle on Logo
+                ctx.fillStyle = '#ed1c24';
+                ctx.beginPath();
+                ctx.arc(this.x + 24, this.y + 36, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+            } else {
+                // Sharp Thorns / Spikes (Kata)
+                ctx.fillStyle = '#d63031';
+                ctx.strokeStyle = '#2d3436';
+                ctx.lineWidth = 2;
+
+                // Draw 3 Spikes
+                ctx.beginPath();
+                ctx.moveTo(this.x, groundY);
+                ctx.lineTo(this.x + 6, groundY - this.height);
+                ctx.lineTo(this.x + 12, groundY);
+
+                ctx.lineTo(this.x + 18, groundY - this.height - 6);
+                ctx.lineTo(this.x + 24, groundY);
+
+                ctx.lineTo(this.x + 30, groundY - this.height + 4);
+                ctx.lineTo(this.x + this.width, groundY);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
         }
+
         update() {
             this.x -= gameSpeed;
             this.draw();
         }
     }
 
-    // Coins (Golden)
+    // 3D Animated Golden Coins
     let coins = [];
     class Coin {
         constructor() {
-            this.x = canvas.width + 50;
-            this.y = groundY - 80 - Math.random() * 60;
-            this.radius = 12;
+            this.x = canvas.width + 30;
+            this.y = groundY - 75 - Math.random() * 85;
+            this.radius = 13;
+            this.spinVal = Math.random() * Math.PI;
         }
+
         draw() {
+            this.spinVal += 0.08;
+            let widthFactor = Math.abs(Math.sin(this.spinVal));
+
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.scale(widthFactor, 1);
+
+            // Glow Effect
+            ctx.shadowColor = '#ffd700';
+            ctx.shadowBlur = 10;
+
+            // Outer Coin Circle
             ctx.fillStyle = '#ffd700';
             ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
             ctx.fill();
 
-            ctx.strokeStyle = '#daa520';
+            // Inner Coin Rim
+            ctx.strokeStyle = '#b8860b';
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Inner Star/Icon
-            ctx.fillStyle = '#b8860b';
-            ctx.font = 'bold 10px Arial';
-            ctx.fillText('★', this.x - 4, this.y + 4);
+            // Center Symbol
+            ctx.fillStyle = '#d4af37';
+            ctx.font = 'bold 11px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('⚽', 0, 0);
+
+            ctx.restore();
         }
+
         update() {
             this.x -= gameSpeed;
             this.draw();
         }
     }
 
-    // Background Rendering (World Cup Stadium & Grass Ground)
-    function drawBackground() {
-        // Stadium Sky Gradient
-        let skyGradient = ctx.createLinearGradient(0, 0, 0, 300);
-        skyGradient.addColorStop(0, '#0f2027');
-        skyGradient.addColorStop(1, '#203a43');
-        ctx.fillStyle = skyGradient;
+    // Particle Burst Effects
+    let particles = [];
+    function createParticles(x, y, color) {
+        for (let i = 0; i < 12; i++) {
+            particles.push({
+                x: x, y: y,
+                dx: (Math.random() - 0.5) * 6,
+                dy: (Math.random() - 0.5) * 6,
+                size: Math.random() * 4 + 2,
+                color: color,
+                life: 20
+            });
+        }
+    }
+
+    function updateParticles() {
+        for (let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i];
+            p.x += p.dx;
+            p.y += p.dy;
+            p.life--;
+
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (p.life <= 0) particles.splice(i, 1);
+        }
+    }
+
+    // Background Rendering: Stadium Lights, Crowd, LED Board, Turf Ground
+    let adOffset = 0;
+    function drawStadiumBackground() {
+        // Night Stadium Sky Gradient
+        let skyGrad = ctx.createLinearGradient(0, 0, 0, 280);
+        skyGrad.addColorStop(0, '#050b14');
+        skyGrad.addColorStop(0.6, '#0f1f38');
+        skyGrad.addColorStop(1, '#1b3459');
+        ctx.fillStyle = skyGrad;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Stadium Stands & Lights
-        ctx.fillStyle = '#333';
-        ctx.fillRect(0, 180, canvas.width, 100);
-        
-        // Audience Lights effect
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-        for(let i = 20; i < canvas.width; i += 60) {
-            ctx.fillRect(i, 190, 40, 80);
+        // Stadium Floodlight Towers & Beams
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.beginPath();
+        ctx.moveTo(100, 0); ctx.lineTo(0, 280); ctx.lineTo(300, 280); ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(800, 0); ctx.lineTo(600, 280); ctx.lineTo(900, 280); ctx.closePath();
+        ctx.fill();
+
+        // Floodlight Lamps
+        ctx.fillStyle = '#fff';
+        ctx.shadowColor = '#fff';
+        ctx.shadowBlur = 15;
+        for (let x = 80; x <= 140; x += 20) ctx.fillRect(x, 10, 12, 12);
+        for (let x = 760; x <= 820; x += 20) ctx.fillRect(x, 10, 12, 12);
+        ctx.shadowBlur = 0;
+
+        // Crowd Audience Stands
+        ctx.fillStyle = '#111827';
+        ctx.fillRect(0, 160, canvas.width, 110);
+
+        // Crowd Flash Lights
+        for (let i = 0; i < 40; i++) {
+            if (Math.random() > 0.85) {
+                let cx = (i * 23 + frameCount * 2) % canvas.width;
+                let cy = 170 + (i % 4) * 20;
+                ctx.fillStyle = Math.random() > 0.5 ? '#fed100' : '#ffffff';
+                ctx.fillRect(cx, cy, 3, 3);
+            }
         }
 
-        // Green Football Grass Ground
-        ctx.fillStyle = '#2e7d32';
+        // LED Ad Boards (Scrolling text)
+        adOffset += gameSpeed * 0.5;
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 270, canvas.width, 30);
+        ctx.strokeStyle = '#fed100';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(0, 270, canvas.width, 30);
+
+        ctx.fillStyle = '#00ff87';
+        ctx.font = 'bold 13px sans-serif';
+        let adText = "  ⚽ SAMBA RUNNER BD  |  🇧🇷 BRAZIL WORLD CUP 2026  |  7UP DODGE CHALLENGE  |  GOLDEN BOOT RUN  ";
+        let textWidth = ctx.measureText(adText).width;
+        let xPos = -(adOffset % textWidth);
+        ctx.fillText(adText + adText, xPos, 290);
+
+        // Football Pitch Turf Ground (Alternating Green Stripes)
+        ctx.fillStyle = '#1e7e34';
         ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
 
-        // Field Grass Lines (Football Pitch look)
-        ctx.strokeStyle = '#4caf50';
-        ctx.lineWidth = 15;
-        for (let i = (frameCount * -gameSpeed) % 60; i < canvas.width; i += 60) {
-            ctx.beginPath();
-            ctx.moveTo(i, groundY);
-            ctx.lineTo(i, canvas.height);
-            ctx.stroke();
+        let stripeWidth = 50;
+        let offset = (frameCount * gameSpeed) % (stripeWidth * 2);
+        ctx.fillStyle = '#28a745';
+        for (let x = -offset; x < canvas.width + stripeWidth; x += stripeWidth * 2) {
+            ctx.fillRect(x, groundY, stripeWidth, canvas.height - groundY);
         }
 
-        // White Ground Line
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(0, groundY);
-        ctx.lineTo(canvas.width, groundY);
-        ctx.stroke();
+        // White Touchline
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, groundY, canvas.width, 4);
     }
 
     // Spawn Logic
     function handleSpawns() {
-        if (frameCount % 100 === 0) {
+        if (frameCount % 90 === 0) {
             obstacles.push(new Obstacle());
         }
-        if (frameCount % 150 === 0) {
+        if (frameCount % 120 === 0) {
             coins.push(new Coin());
         }
     }
@@ -372,133 +649,150 @@
     function checkCollisions() {
         // Obstacle Collision
         for (let obs of obstacles) {
+            let hitBoxPadding = 6;
             if (
-                player.x < obs.x + obs.width &&
-                player.x + player.width > obs.x &&
-                player.y < obs.y + obs.height &&
+                player.x + hitBoxPadding < obs.x + obs.width &&
+                player.x + player.width - hitBoxPadding > obs.x &&
+                player.y + hitBoxPadding < obs.y + obs.height &&
                 player.y + player.height > obs.y
             ) {
+                createParticles(player.x + player.width/2, player.y + player.height/2, '#d63031');
+                playSound('hit');
                 gameOver();
             }
         }
 
-        // Coin Collection
-        coins.forEach((coin, index) => {
-            let distX = (player.x + player.width/2) - coin.x;
-            let distY = (player.y + player.height/2) - coin.y;
-            let distance = Math.sqrt(distX * distX + distY * distY);
+        // Coin Pickup
+        for (let i = coins.length - 1; i >= 0; i--) {
+            let coin = coins[i];
+            let dx = (player.x + player.width/2) - coin.x;
+            let dy = (player.y + player.height/2) - coin.y;
+            let dist = Math.sqrt(dx * dx + dy * dy);
 
-            if (distance < player.width/2 + coin.radius) {
+            if (dist < player.width/2 + coin.radius) {
                 coinsCollected++;
                 coinText.innerText = coinsCollected;
-                playClickSound();
-                coins.splice(index, 1);
+                createParticles(coin.x, coin.y, '#ffd700');
+                playSound('coin');
+                coins.splice(i, 1);
             }
-        });
+        }
     }
 
-    // Main Loop
+    // Main Game Loop
     function animate() {
         if (gameState !== 'PLAYING') return;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         frameCount++;
 
-        drawBackground();
+        drawStadiumBackground();
 
-        // Update & Draw Obstacles
+        // Spawn & Update Obstacles
+        handleSpawns();
+
         for (let i = obstacles.length - 1; i >= 0; i--) {
             obstacles[i].update();
-            if (obstacles[i].x + obstacles[i].width < 0) obstacles.splice(i, 1);
+            if (obstacles[i].x + obstacles[i].width < -20) obstacles.splice(i, 1);
         }
 
-        // Update & Draw Coins
+        // Spawn & Update Coins
         for (let i = coins.length - 1; i >= 0; i--) {
             coins[i].update();
-            if (coins[i].x + coins[i].radius < 0) coins.splice(i, 1);
+            if (coins[i].x + coins[i].radius < -20) coins.splice(i, 1);
         }
 
         player.update();
+        updateParticles();
         checkCollisions();
 
-        // Score Calculation
-        if (frameCount % 5 === 0) {
+        // Score Progression
+        if (frameCount % 6 === 0) {
             score++;
             scoreText.innerText = score;
         }
 
-        // Speedup gradually
-        if (frameCount % 500 === 0) gameSpeed += 0.5;
+        // Speedup progression
+        if (frameCount % 400 === 0) gameSpeed += 0.4;
 
         requestAnimationFrame(animate);
     }
 
-    // Game Control Functions
+    // Game States
     function startGame() {
-        playClickSound();
         resetData();
         gameState = 'PLAYING';
         startScreen.classList.add('hidden');
         pauseScreen.classList.add('hidden');
         gameOverScreen.classList.add('hidden');
-        startBgVoice();
+        startVoiceLoop();
         animate();
     }
 
     function pauseGame() {
-        playClickSound();
         if (gameState === 'PLAYING') {
             gameState = 'PAUSED';
-            stopBgVoice();
+            stopVoiceLoop();
             pauseScreen.classList.remove('hidden');
         }
     }
 
     function resumeGame() {
-        playClickSound();
         gameState = 'PLAYING';
         pauseScreen.classList.add('hidden');
-        startBgVoice();
+        startVoiceLoop();
         animate();
     }
 
     function gameOver() {
         gameState = 'GAMEOVER';
-        stopBgVoice();
+        stopVoiceLoop();
+
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('samba_runner_highscore', highScore);
+            highScoreText.innerText = highScore;
+        }
+
         finalScore.innerText = score;
         finalCoins.innerText = coinsCollected;
         gameOverScreen.classList.remove('hidden');
     }
 
     function showMenu() {
-        playClickSound();
         gameState = 'START';
-        stopBgVoice();
+        stopVoiceLoop();
         resetData();
         startScreen.classList.remove('hidden');
         pauseScreen.classList.add('hidden');
         gameOverScreen.classList.add('hidden');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawBackground();
+        drawStadiumBackground();
     }
 
     function resetData() {
         score = 0;
         coinsCollected = 0;
-        gameSpeed = 6;
+        gameSpeed = 7;
         frameCount = 0;
         obstacles = [];
         coins = [];
+        particles = [];
         player.y = groundY - player.height;
         scoreText.innerText = 0;
         coinText.innerText = 0;
     }
 
-    // Event Listeners
+    // Input Handlers
     window.addEventListener('keydown', (e) => {
         if (e.code === 'Space' || e.code === 'ArrowUp') {
+            e.preventDefault();
             if (gameState === 'PLAYING') player.jump();
         }
+    });
+
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (gameState === 'PLAYING') player.jump();
     });
 
     startBtn.addEventListener('click', startGame);
@@ -509,7 +803,7 @@
     menuBtn2.addEventListener('click', showMenu);
 
     // Initial Screen Draw
-    drawBackground();
+    drawStadiumBackground();
 </script>
 </body>
 </html>
