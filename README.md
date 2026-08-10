@@ -184,7 +184,7 @@
             <h1 class="game-title">Samba Runner BD ⚽</h1>
             <div class="sub-title">RRX STUDIOS PRESENTS</div>
         </div>
-        <p class="instructions">7আপ খাও, হেক্সা মিশন জিতো!</p>
+        <p class="instructions">7 আপ খাও, হেক্সা মিশন জিতো!</p>
         <button id="startBtn" class="btn">START GAME ▶</button>
     </div>
 
@@ -278,7 +278,7 @@
         }
     }
 
-    // YouTube Background Music Player (Loop)
+    // YouTube Background Music Player (Looping)
     let playerYT;
     function onYouTubeIframeAPIReady() {
         playerYT = new YT.Player('yt-player', {
@@ -472,11 +472,11 @@
 
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 13px sans-serif';
-                ctx.fillText('7Up', this.x + 4, this.y + 28);
+                ctx.fillText('7 Up', this.x + 2, this.y + 28);
 
                 ctx.fillStyle = '#ed1c24';
                 ctx.beginPath();
-                ctx.arc(this.x + 24, this.y + 36, 4, 0, Math.PI * 2);
+                ctx.arc(this.x + 25, this.y + 36, 4, 0, Math.PI * 2);
                 ctx.fill();
 
             } else {
@@ -632,7 +632,7 @@
 
         ctx.fillStyle = '#00ff87';
         ctx.font = 'bold 13px sans-serif';
-        let adText = "  ⚽ SAMBA RUNNER BD  |  RRX STUDIOS PRESENTS  |  7আপ খাও হেক্সা মিশন জিতো  |  GOLDEN BOOT RUN  ";
+        let adText = "  ⚽ SAMBA RUNNER BD  |  RRX STUDIOS PRESENTS  |  7 আপ খাও হেক্সা মিশন জিতো  |  GOLDEN BOOT RUN  ";
         let textWidth = ctx.measureText(adText).width;
         let xPos = -(adOffset % textWidth);
         ctx.fillText(adText + adText, xPos, 290);
