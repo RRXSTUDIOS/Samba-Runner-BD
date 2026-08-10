@@ -61,7 +61,7 @@
             letter-spacing: 2px;
         }
 
-        /* Updated Subtitle Style */
+        /* Subtitle Style */
         .sub-title {
             font-size: 18px;
             color: #ffffff;
@@ -72,9 +72,9 @@
             text-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
         }
 
-        /* Updated Instructions Style */
+        /* Updated Instructions Style (Bangla) */
         p.instructions {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 800;
             margin-bottom: 25px;
             color: #ffffff;
@@ -160,6 +160,9 @@
 <body>
 
 <div id="game-wrapper">
+    <!-- Hidden Container for YouTube Background Audio -->
+    <div id="yt-player" style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;"></div>
+
     <!-- Heads Up Display (HUD) -->
     <div id="hud">
         <div style="display: flex; gap: 12px;">
@@ -181,7 +184,7 @@
             <h1 class="game-title">Samba Runner BD ⚽</h1>
             <div class="sub-title">RRX STUDIOS PRESENTS</div>
         </div>
-        <p class="instructions">7up khao hexa mission jito</p>
+        <p class="instructions">৭আপ খাও, হেক্সা মিশন জিতো!</p>
         <button id="startBtn" class="btn">START GAME ▶</button>
     </div>
 
@@ -206,6 +209,9 @@
         </div>
     </div>
 </div>
+
+<!-- YouTube IFrame API Script -->
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
     const canvas = document.getElementById('gameCanvas');
@@ -233,7 +239,7 @@
     let highScore = localStorage.getItem('samba_runner_highscore') || 0;
     highScoreText.innerText = highScore;
 
-    // Web Audio Synthesizer for Clean Sound Effects
+    // Web Audio Synthesizer for Jump/Coin Sounds
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function playSound(type) {
@@ -272,24 +278,38 @@
         }
     }
 
-    // Speech Voice Loop (Runs strictly during game play)
-    let bgVoiceInterval;
-    function startVoiceLoop() {
-        if (bgVoiceInterval) clearInterval(bgVoiceInterval);
-        bgVoiceInterval = setInterval(() => {
-            if (gameState === 'PLAYING' && 'speechSynthesis' in window) {
-                const msg = new SpeechSynthesisUtterance("ঐ দৌড় দৌড় চোর");
-                msg.lang = 'bn-BD';
-                msg.pitch = 1.1;
-                msg.rate = 1.3;
-                window.speechSynthesis.speak(msg);
+    // YouTube Background Music Player (Loop)
+    let playerYT;
+    function onYouTubeIframeAPIReady() {
+        playerYT = new YT.Player('yt-player', {
+            height: '0',
+            width: '0',
+            videoId: 'QtD4Wza458M',
+            playerVars: {
+                'autoplay': 0,
+                'controls': 0,
+                'loop': 1,
+                'playlist': 'QtD4Wza458M'
             }
-        }, 2400);
+        });
     }
 
-    function stopVoiceLoop() {
-        if (bgVoiceInterval) clearInterval(bgVoiceInterval);
-        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    function playBGM() {
+        if (playerYT && typeof playerYT.playVideo === 'function') {
+            playerYT.playVideo();
+        }
+    }
+
+    function pauseBGM() {
+        if (playerYT && typeof playerYT.pauseVideo === 'function') {
+            playerYT.pauseVideo();
+        }
+    }
+
+    function stopBGM() {
+        if (playerYT && typeof playerYT.stopVideo === 'function') {
+            playerYT.stopVideo();
+        }
     }
 
     // Game Variables
@@ -302,7 +322,7 @@
     const groundY = 360;
     const gravity = 0.65;
 
-    // Player Object (Animated Brazil Player)
+    // Player Object
     const player = {
         x: 90,
         y: groundY - 60,
@@ -316,11 +336,10 @@
             ctx.save();
             ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
 
-            // Calculate leg/arm movement swing angle
             if (!this.isJumping) {
                 this.legAngle = Math.sin(frameCount * 0.25) * 0.6;
             } else {
-                this.legAngle = 0.4; // Jump pose
+                this.legAngle = 0.4;
             }
 
             // Back Arm
@@ -332,14 +351,14 @@
             ctx.stroke();
 
             // Back Leg
-            ctx.strokeStyle = '#002776'; // Blue shorts leg
+            ctx.strokeStyle = '#002776';
             ctx.lineWidth = 7;
             ctx.beginPath();
             ctx.moveTo(-4, 8);
             ctx.lineTo(-Math.sin(this.legAngle) * 20, 26);
             ctx.stroke();
 
-            // Cleat/Shoe Back
+            // Shoe Back
             ctx.fillStyle = '#fff';
             ctx.fillRect(-Math.sin(this.legAngle) * 20 - 3, 23, 10, 5);
 
@@ -350,7 +369,7 @@
             ctx.lineTo(Math.sin(this.legAngle) * 20, 26);
             ctx.stroke();
 
-            // Cleat/Shoe Front
+            // Shoe Front
             ctx.fillStyle = '#fff';
             ctx.fillRect(Math.sin(this.legAngle) * 20 - 3, 23, 10, 5);
 
@@ -385,13 +404,13 @@
             ctx.arc(0, -28, 11, 0, Math.PI * 2);
             ctx.fill();
 
-            // Hair (Stylish dark hair)
+            // Hair
             ctx.fillStyle = '#222';
             ctx.beginPath();
             ctx.arc(0, -31, 11, Math.PI * 0.8, Math.PI * 2.2);
             ctx.fill();
 
-            // Headband / Sweatband (Green)
+            // Headband (Green)
             ctx.fillStyle = '#009c3b';
             ctx.fillRect(-11, -33, 22, 4);
 
@@ -419,7 +438,7 @@
         }
     };
 
-    // Obstacles (7Up Cans & Sharp Spikes/Kata)
+    // Obstacles
     let obstacles = [];
     class Obstacle {
         constructor() {
@@ -438,7 +457,6 @@
 
         draw() {
             if (this.type === '7UP') {
-                // 7Up Can Body
                 let gradient = ctx.createLinearGradient(this.x, 0, this.x + this.width, 0);
                 gradient.addColorStop(0, '#00833e');
                 gradient.addColorStop(0.5, '#00a651');
@@ -448,29 +466,24 @@
                 ctx.roundRect(this.x, this.y, this.width, this.height, 4);
                 ctx.fill();
 
-                // Metallic Silver Lid
                 ctx.fillStyle = '#e6e6e6';
                 ctx.fillRect(this.x + 2, this.y, this.width - 4, 4);
                 ctx.fillRect(this.x + 2, this.y + this.height - 4, this.width - 4, 4);
 
-                // 7Up Logo text
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 13px sans-serif';
                 ctx.fillText('7Up', this.x + 4, this.y + 28);
 
-                // Red Circle on Logo
                 ctx.fillStyle = '#ed1c24';
                 ctx.beginPath();
                 ctx.arc(this.x + 24, this.y + 36, 4, 0, Math.PI * 2);
                 ctx.fill();
 
             } else {
-                // Sharp Thorns / Spikes (Kata)
                 ctx.fillStyle = '#d63031';
                 ctx.strokeStyle = '#2d3436';
                 ctx.lineWidth = 2;
 
-                // Draw 3 Spikes
                 ctx.beginPath();
                 ctx.moveTo(this.x, groundY);
                 ctx.lineTo(this.x + 6, groundY - this.height);
@@ -493,12 +506,11 @@
         }
     }
 
-    // 3D Animated Golden Coins (Position Brought Lower)
+    // 3D Animated Golden Coins
     let coins = [];
     class Coin {
         constructor() {
             this.x = canvas.width + 30;
-            // Lowered height for easier collection
             this.y = groundY - 45 - Math.random() * 55;
             this.radius = 13;
             this.spinVal = Math.random() * Math.PI;
@@ -512,22 +524,18 @@
             ctx.translate(this.x, this.y);
             ctx.scale(widthFactor, 1);
 
-            // Glow Effect
             ctx.shadowColor = '#ffd700';
             ctx.shadowBlur = 10;
 
-            // Outer Coin Circle
             ctx.fillStyle = '#ffd700';
             ctx.beginPath();
             ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
             ctx.fill();
 
-            // Inner Coin Rim
             ctx.strokeStyle = '#b8860b';
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Center Symbol
             ctx.fillStyle = '#d4af37';
             ctx.font = 'bold 11px sans-serif';
             ctx.textAlign = 'center';
@@ -574,10 +582,9 @@
         }
     }
 
-    // Background Rendering: Stadium Lights, Crowd, LED Board, Turf Ground
+    // Background Rendering
     let adOffset = 0;
     function drawStadiumBackground() {
-        // Night Stadium Sky Gradient
         let skyGrad = ctx.createLinearGradient(0, 0, 0, 280);
         skyGrad.addColorStop(0, '#050b14');
         skyGrad.addColorStop(0.6, '#0f1f38');
@@ -585,7 +592,7 @@
         ctx.fillStyle = skyGrad;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Stadium Floodlight Towers & Beams
+        // Floodlights
         ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
         ctx.beginPath();
         ctx.moveTo(100, 0); ctx.lineTo(0, 280); ctx.lineTo(300, 280); ctx.closePath();
@@ -595,7 +602,6 @@
         ctx.moveTo(800, 0); ctx.lineTo(600, 280); ctx.lineTo(900, 280); ctx.closePath();
         ctx.fill();
 
-        // Floodlight Lamps
         ctx.fillStyle = '#fff';
         ctx.shadowColor = '#fff';
         ctx.shadowBlur = 15;
@@ -603,11 +609,10 @@
         for (let x = 760; x <= 820; x += 20) ctx.fillRect(x, 10, 12, 12);
         ctx.shadowBlur = 0;
 
-        // Crowd Audience Stands
+        // Audience Stands
         ctx.fillStyle = '#111827';
         ctx.fillRect(0, 160, canvas.width, 110);
 
-        // Crowd Flash Lights
         for (let i = 0; i < 40; i++) {
             if (Math.random() > 0.85) {
                 let cx = (i * 23 + frameCount * 2) % canvas.width;
@@ -617,7 +622,7 @@
             }
         }
 
-        // LED Ad Boards (Scrolling text)
+        // LED Ad Boards
         adOffset += gameSpeed * 0.5;
         ctx.fillStyle = '#000';
         ctx.fillRect(0, 270, canvas.width, 30);
@@ -627,12 +632,12 @@
 
         ctx.fillStyle = '#00ff87';
         ctx.font = 'bold 13px sans-serif';
-        let adText = "  ⚽ SAMBA RUNNER BD  |  RRX STUDIOS PRESENTS  |  7UP KHAO HEXA MISSION JITO  |  GOLDEN BOOT RUN  ";
+        let adText = "  ⚽ SAMBA RUNNER BD  |  RRX STUDIOS PRESENTS  |  ৭আপ খাও হেক্সা মিশন জিতো  |  GOLDEN BOOT RUN  ";
         let textWidth = ctx.measureText(adText).width;
         let xPos = -(adOffset % textWidth);
         ctx.fillText(adText + adText, xPos, 290);
 
-        // Football Pitch Turf Ground (Alternating Green Stripes)
+        // Turf Ground
         ctx.fillStyle = '#1e7e34';
         ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
 
@@ -643,7 +648,6 @@
             ctx.fillRect(x, groundY, stripeWidth, canvas.height - groundY);
         }
 
-        // White Touchline
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, groundY, canvas.width, 4);
     }
@@ -660,7 +664,6 @@
 
     // Collision Detection
     function checkCollisions() {
-        // Obstacle Collision
         for (let obs of obstacles) {
             let hitBoxPadding = 6;
             if (
@@ -675,7 +678,6 @@
             }
         }
 
-        // Coin Pickup
         for (let i = coins.length - 1; i >= 0; i--) {
             let coin = coins[i];
             let dx = (player.x + player.width/2) - coin.x;
@@ -700,8 +702,6 @@
         frameCount++;
 
         drawStadiumBackground();
-
-        // Spawn & Update Obstacles
         handleSpawns();
 
         for (let i = obstacles.length - 1; i >= 0; i--) {
@@ -709,7 +709,6 @@
             if (obstacles[i].x + obstacles[i].width < -20) obstacles.splice(i, 1);
         }
 
-        // Spawn & Update Coins
         for (let i = coins.length - 1; i >= 0; i--) {
             coins[i].update();
             if (coins[i].x + coins[i].radius < -20) coins.splice(i, 1);
@@ -719,33 +718,31 @@
         updateParticles();
         checkCollisions();
 
-        // Score Progression
         if (frameCount % 6 === 0) {
             score++;
             scoreText.innerText = score;
         }
 
-        // Speedup progression
         if (frameCount % 400 === 0) gameSpeed += 0.4;
 
         requestAnimationFrame(animate);
     }
 
-    // Game States
+    // Game States & Music Handlers
     function startGame() {
         resetData();
         gameState = 'PLAYING';
         startScreen.classList.add('hidden');
         pauseScreen.classList.add('hidden');
         gameOverScreen.classList.add('hidden');
-        startVoiceLoop();
+        playBGM();
         animate();
     }
 
     function pauseGame() {
         if (gameState === 'PLAYING') {
             gameState = 'PAUSED';
-            stopVoiceLoop();
+            pauseBGM();
             pauseScreen.classList.remove('hidden');
         }
     }
@@ -753,13 +750,13 @@
     function resumeGame() {
         gameState = 'PLAYING';
         pauseScreen.classList.add('hidden');
-        startVoiceLoop();
+        playBGM();
         animate();
     }
 
     function gameOver() {
         gameState = 'GAMEOVER';
-        stopVoiceLoop();
+        pauseBGM();
 
         if (score > highScore) {
             highScore = score;
@@ -774,7 +771,7 @@
 
     function showMenu() {
         gameState = 'START';
-        stopVoiceLoop();
+        stopBGM();
         resetData();
         startScreen.classList.remove('hidden');
         pauseScreen.classList.add('hidden');
@@ -795,16 +792,14 @@
         coinText.innerText = 0;
     }
 
-    // Universal Jump Trigger (For Keyboard, Touch & Mouse)
+    // Input Control Handlers
     function handleJump(e) {
         if (gameState === 'PLAYING') {
-            // Check if click/tap was on the pause button
             if (e.target && e.target.id === 'pauseBtn') return;
             player.jump();
         }
     }
 
-    // Keyboard Input Handlers
     window.addEventListener('keydown', (e) => {
         if (e.code === 'Space' || e.code === 'ArrowUp') {
             e.preventDefault();
@@ -812,22 +807,16 @@
         }
     });
 
-    // Touch Support for Mobile
     gameWrapper.addEventListener('touchstart', (e) => {
-        if (gameState === 'PLAYING') {
-            if (e.target.tagName !== 'BUTTON') {
-                e.preventDefault();
-                handleJump(e);
-            }
+        if (gameState === 'PLAYING' && e.target.tagName !== 'BUTTON') {
+            e.preventDefault();
+            handleJump(e);
         }
     });
 
-    // Mouse Click Support for PC
     gameWrapper.addEventListener('mousedown', (e) => {
-        if (e.button === 0 && gameState === 'PLAYING') { // Left Click
-            if (e.target.tagName !== 'BUTTON') {
-                handleJump(e);
-            }
+        if (e.button === 0 && gameState === 'PLAYING' && e.target.tagName !== 'BUTTON') {
+            handleJump(e);
         }
     });
 
@@ -838,7 +827,6 @@
     menuBtn1.addEventListener('click', showMenu);
     menuBtn2.addEventListener('click', showMenu);
 
-    // Initial Screen Draw
     drawStadiumBackground();
 </script>
 </body>
