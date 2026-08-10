@@ -278,7 +278,7 @@
         }
     }
 
-    // YouTube Background Music Player (Looping)
+    // YouTube Background Music Player (Looping Setup)
     let playerYT;
     function onYouTubeIframeAPIReady() {
         playerYT = new YT.Player('yt-player', {
@@ -290,8 +290,18 @@
                 'controls': 0,
                 'loop': 1,
                 'playlist': 'QtD4Wza458M'
+            },
+            events: {
+                'onStateChange': onPlayerStateChange
             }
         });
+    }
+
+    function onPlayerStateChange(event) {
+        // Force repeat playing if video ends
+        if (event.data === YT.PlayerState.ENDED) {
+            playerYT.playVideo();
+        }
     }
 
     function playBGM() {
@@ -308,7 +318,8 @@
 
     function stopBGM() {
         if (playerYT && typeof playerYT.stopVideo === 'function') {
-            playerYT.stopVideo();
+            playerYT.pauseVideo();
+            playerYT.seekTo(0);
         }
     }
 
